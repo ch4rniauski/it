@@ -7,10 +7,12 @@ if (str is null || str == "")
 
 str = str.ToLower();
 
+var strLength = str.Length;
+
 var symbolsRepetitions = new Dictionary<char, int>();
 var charCodes = new Dictionary<char, string>();
 
-foreach (char c in str)
+foreach (char c in str) // количесвто повторений символа
 {
     if (symbolsRepetitions.ContainsKey(c))
         symbolsRepetitions[c]++;
@@ -18,7 +20,7 @@ foreach (char c in str)
         symbolsRepetitions.Add(c, 1);
 }
 
-foreach(var pair in symbolsRepetitions)
+foreach(var pair in symbolsRepetitions) // создание списка узлов из символов
 {
     var node = new Node()
     {
@@ -31,22 +33,38 @@ foreach(var pair in symbolsRepetitions)
 
 Huffman.SortNodes();
 
-while (Huffman.Tree.Count > 1)
+while (Huffman.Tree.Count > 1) // создание дерева из узлов
 {
     Huffman.CreateNode();
     Huffman.SortNodes();
 }
 
-Huffman.CreateTree(ref charCodes, symbolsRepetitions.Count);
+Huffman.CreateCharCodes(ref charCodes, symbolsRepetitions.Count);
 
-Console.WriteLine();
+Console.WriteLine(); // табличные данные
 foreach (var pair in charCodes)
-    Console.WriteLine($"{pair.Key} = {pair.Value}");
+    Console.WriteLine($"{pair.Key} ({((double)symbolsRepetitions[pair.Key] / (double)strLength) * 100}%) = {pair.Value} ({pair.Value.Length} символов)");
 Console.WriteLine();
 
-foreach (char c in str)
+foreach (char c in str) // закодированная строка
     Console.Write(charCodes[c]);
 Console.WriteLine();
+
+double entropy = 0; // энтропия
+foreach (var pair in symbolsRepetitions)
+{
+    double probability = (double)pair.Value / strLength;
+    entropy -= probability * Math.Log2(probability);
+}
+Console.WriteLine($"Энтропия: {entropy}");
+
+double averageCodeLength = 0; // ср. длина кодового слова
+foreach (var pair in charCodes)
+{
+    double probability = (double)symbolsRepetitions[pair.Key] / strLength;
+    averageCodeLength += probability * pair.Value.Length;
+}
+Console.WriteLine($"Средняя длина кодового слова: {averageCodeLength}");
 
 static class Huffman
 {
@@ -80,7 +98,7 @@ static class Huffman
         }
     }
 
-    public static void CreateTree(ref Dictionary<char, string> charCodes, int n)
+    public static void CreateCharCodes(ref Dictionary<char, string> charCodes, int n)
     {
         for (int i = 0; i < n; i++)
         {
