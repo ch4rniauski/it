@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "ILL+cpA01Cs=",
+  "success": true,
+  "projectFilePath": "D:\\university\\it\\laba3\\laba3\\laba3.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Admin\\.nuget\\packages\\mathnet.numerics\\5.0.0\\mathnet.numerics.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
