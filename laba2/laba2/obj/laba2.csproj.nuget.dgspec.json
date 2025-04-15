@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "D:\\university\\it\\laba2\\laba2\\laba2.csproj": {}
+    "/Users/yauhenicharniauski/University/it/laba2/laba2/laba2.csproj": {}
   },
   "projects": {
-    "D:\\university\\it\\laba2\\laba2\\laba2.csproj": {
+    "/Users/yauhenicharniauski/University/it/laba2/laba2/laba2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\university\\it\\laba2\\laba2\\laba2.csproj",
+        "projectUniqueName": "/Users/yauhenicharniauski/University/it/laba2/laba2/laba2.csproj",
         "projectName": "laba2",
-        "projectPath": "D:\\university\\it\\laba2\\laba2\\laba2.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "D:\\university\\it\\laba2\\laba2\\obj\\",
+        "projectPath": "/Users/yauhenicharniauski/University/it/laba2/laba2/laba2.csproj",
+        "packagesPath": "/Users/yauhenicharniauski/.nuget/packages/",
+        "outputPath": "/Users/yauhenicharniauski/University/it/laba2/laba2/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "D:\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/yauhenicharniauski/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -71,7 +65,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "c:\\program files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

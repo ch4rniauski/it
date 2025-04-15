@@ -1,245 +1,137 @@
 ﻿using MathNet.Numerics;
 
-var text = File.ReadAllText("text.txt").ToLower();
+var originalText = File.ReadAllText("text.txt");
 
-if (string.IsNullOrWhiteSpace(text))
-    return;
+Console.WriteLine("Исходный текст:");
+Console.WriteLine(originalText);
+Console.WriteLine();
+Console.WriteLine();
 
-Console.WriteLine($"Исходный текст: {text}");
-
-List<int> spaceIndexes = new();
-for (int i = 0; i < text.Length; i++)
-{
-    if (text[i] == ' ')
-        spaceIndexes.Add(i);
-}
-
-text = text.Replace(" ", "");
-
-string? secretWord;
-
+var key = "";
 while (true)
 {
-    Console.Write("Введите кодовое слово для шифрования методом Виженера: ");
-    secretWord = Console.ReadLine();
+    Console.Write("Введите ключ: ");
+    key = Console.ReadLine();
 
-    if (string.IsNullOrWhiteSpace(secretWord))
-        continue;
-    break;
-}
-Console.WriteLine();
-
-var encryptedVigener = Vigener.Encryption(text, secretWord);
-encryptedVigener = InsertSpacesAtIndexes(encryptedVigener, spaceIndexes);
-Console.WriteLine($"Зашифрованный текст (Виженер): {encryptedVigener}");
-
-encryptedVigener = encryptedVigener.Replace(" ", "");
-var decryptedVigener = Vigener.Decryption(encryptedVigener, secretWord);
-decryptedVigener = InsertSpacesAtIndexes(decryptedVigener, spaceIndexes);
-Console.WriteLine($"Расшифрованный текст (Виженер): {decryptedVigener}");
-
-Console.WriteLine();
-Console.WriteLine("Тест Касиски для метода Виженера:");
-var secretWordLength = Kasiski.FindSecretWordLength(encryptedVigener);
-
-encryptedVigener = encryptedVigener.Replace(" ", "");
-var foundSecretWord = Kasiski.FindVigenereKey(encryptedVigener, secretWordLength);
-Console.WriteLine($"Вычисленное кодовое слово Виженера: {foundSecretWord}");
-
-static string InsertSpacesAtIndexes(string text, List<int> indexes)
-{
-    foreach (var index in indexes)
-    {
-        if (index < text.Length)
-            text = text.Insert(index, " ");
-        else
-            text += " ";
-    }
-    return text;
+    if (!string.IsNullOrWhiteSpace(key))
+        break;
 }
 
-static class Vigener
-{
-    public static string Encryption(string text, string secretWord)
-    {
-        string encryptedText = string.Empty;
+Console.WriteLine();
+Console.WriteLine();
+key = key.ToLower();
 
-        for (int i = 0; i < text.Length; i++)
+var encryptedTextWithoutChanging = Vigenere.EncryptWithoutChanging(originalText, key!);
+Console.WriteLine("Зашифрованный текст:");
+Console.WriteLine(encryptedTextWithoutChanging);
+
+var encryptedText = Vigenere.Encrypt(originalText, key!);
+
+Vigenere.KasiskiMethod(encryptedText);
+
+static class Vigenere
+{
+    public static string EncryptWithoutChanging(string text, string key)
+    {
+        var encryptedText = "";
+        var j = 0;
+
+        foreach (var c in text)
         {
-            if (text[i] == ' ')
+            if (char.IsLetter(c))
             {
-                encryptedText += ' ';
-                continue;
+                bool isUpper = char.IsUpper(c);
+                char baseChar = isUpper ? 'A' : 'a';
+
+                encryptedText += (char)((c - baseChar + (key[j] - 'a')) % 26 + baseChar);
+
+                j = (j + 1) % key.Length;
             }
-
-            int number = (int)text[i] + (int)secretWord[i % secretWord.Length] - 97;
-
-            if (number > 122)
-                number -= 26;
-
-            encryptedText += (char)(number);
+            else
+                encryptedText += c;
         }
 
         return encryptedText;
     }
 
-    public static string Decryption(string encryptedText, string secretWord)
+    public static string Encrypt(string text, string key)
     {
-        string decryptedText = string.Empty;
+        text = text.ToUpper();
+        key = key.ToUpper();
+        string encryptedText = "";
 
-        for (int i = 0; i < encryptedText.Length; i++)
+        for (int i = 0, j = 0; i < text.Length; i++)
         {
-            if (encryptedText[i] == ' ')
-            {
-                decryptedText += ' ';
+            char c = text[i];
+
+            if (c < 'A' || c > 'Z')
                 continue;
-            }
 
-            int number = (int)encryptedText[i] - (int)secretWord[i % secretWord.Length] + 97;
-
-            if (number < 97)
-                number += 26;
-
-            decryptedText += (char)(number);
+            encryptedText += (char)((c - 'A' + (key[j] - 'A')) % 26 + 'A');
+            j = (j + 1) % key.Length;
         }
 
-        return decryptedText;
-    }
-}
-
-static class Kasiski
-{
-    static public int FindSecretWordLength(string encryptedText)
-    {
-        var repetitions = FindRepetitionsWithThreeLetters(encryptedText);
-        List<long> repDistances;
-
-        if (repetitions is not null)
-            repDistances = CalculateRepetitionsDistances(encryptedText, repetitions);
-        else
-        {
-            Console.WriteLine("Не удалось высчитать длину кодового слова");
-            return 0;
-        }
-
-        var length = Euclid.GreatestCommonDivisor(repDistances);
-
-        if (length != 0)
-        {
-            Console.WriteLine($"Длина кодового слова: {length}");
-            return (int)length;
-        }
-        else
-        {
-            repetitions = FindRepetitionsWithTwoLetters(encryptedText);
-            repDistances = CalculateRepetitionsDistances(encryptedText, repetitions!);
-
-            length = Euclid.GreatestCommonDivisor(repDistances);
-
-            if (length != 0)
-                Console.WriteLine($"Длина кодового слова: {length}");
-            else
-                Console.WriteLine("Не удалось высчитать длину кодового словаю. Вероятно, текст слишком короткий");
-            return (int)length;
-        }
+        return encryptedText;
     }
 
-    static private Dictionary<string, List<int>>? FindRepetitionsWithThreeLetters(string encryptedText)
+    private static List<int> FindRepeatingSequences(string text, int sequenceLength)
     {
-        var repetitions = new Dictionary<string, List<int>>();
+        var sequences = new Dictionary<string, List<int>>();
 
-        for (int i = 0; i < encryptedText.Length - 2; i++)
+        for (int i = 0; i <= text.Length - sequenceLength; i++)
         {
-            var substring = encryptedText.Substring(i, 3);
+            string sequence = text.Substring(i, sequenceLength);
 
-            if (repetitions.ContainsKey(substring))
-                repetitions[substring].Add(i);
-            else
-            {
-                repetitions.Add(substring, new());
-                repetitions[substring].Add(i);
-            }
+            if (!sequences.ContainsKey(sequence))
+                sequences[sequence] = new List<int>();
+
+            sequences[sequence].Add(i);
         }
-
-        return repetitions;
+        sequences = sequences.OrderByDescending(x => x.Value.Count).ToDictionary(x => x.Key, x => x.Value);
+        return sequences.Values.First();
     }
 
-    static private Dictionary<string, List<int>>? FindRepetitionsWithTwoLetters(string encryptedText)
+    public static void KasiskiMethod(string encryptedText, int sequenceLength = 3)
     {
-        var repetitions = new Dictionary<string, List<int>>();
+        encryptedText = encryptedText.ToUpper();
+        var positions = FindRepeatingSequences(encryptedText, sequenceLength);
 
-        for (int i = 0; i < encryptedText.Length - 1; i++)
-        {
-            var substring = encryptedText.Substring(i, 2);
+        var distances = new List<long>();
+        for (int i = 1; i < positions.Count; i++)
+            distances.Add(positions[i] - positions[i - 1]);
 
-            if (repetitions.ContainsKey(substring))
-                repetitions[substring].Add(i);
-            else
-            {
-                repetitions.Add(substring, new());
-                repetitions[substring].Add(i);
-            }
-        }
-
-        return repetitions;
+        long gcd = Euclid.GreatestCommonDivisor(distances);
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine($"Длина ключа: {gcd}");
+        Console.WriteLine();
+        Console.WriteLine("Ключ: " + FindKey(encryptedText, (int)gcd));
     }
 
-    static private List<long> CalculateRepetitionsDistances(string encryptedText, Dictionary<string, List<int>> repetitions)
+    private static string FindKey(string encryptedText, int gcd)
     {
-        var repDistances = new List<long>();
+        string found = "";
 
-        foreach (var pair in repetitions)
+        for (int i = 0; i < gcd; i++)
         {
-            if (pair.Value.Count > 1)
+            var dictionary = new Dictionary<char, int>();
+            for (var j = i; j < encryptedText.Length; j += gcd)
             {
-                for (int i = 0; i < pair.Value.Count - 1; i++)
-                    repDistances.Add(pair.Value[i + 1] - pair.Value[i]);
+                if (!dictionary.TryAdd(encryptedText[j], 1))
+                    dictionary[encryptedText[j]]++;
             }
+
+            dictionary = dictionary.OrderByDescending(x => x.Value)
+                .ToDictionary(x => x.Key, x => x.Value);
+
+            int shift = dictionary.Keys.First() - 'E';
+            
+            if (shift < 0) 
+                shift += 26;
+
+            found += (char)(shift + 'a');
         }
 
-        return repDistances;
-    }
-
-    static public string FindVigenereKey(string encryptedText, int secretWordLength)
-    {
-        string secretWord = string.Empty;
-        var dict = new Dictionary<char, int>();
-
-        for (int i = 0; i < secretWordLength; i++)
-        {
-            for (int j = 0; ; j++)
-            {
-                int index = i + j * secretWordLength;
-
-                if (index <= encryptedText.Length - 1)
-                {
-                    if (dict.ContainsKey(encryptedText[index]))
-                        dict[encryptedText[index]]++;
-                    else
-                        dict.Add(encryptedText[index], 1);
-                }
-                else
-                    break;
-            }
-
-            char ch = ' ';
-            double frequency = 0;
-
-            foreach (var pair in dict)
-            {
-                if ((double)((double)pair.Value / (double)secretWordLength) > frequency)
-                {
-                    frequency = (double)((double)pair.Value / (double)secretWordLength);
-                    ch = pair.Key;
-                }
-            }
-
-            int shift = (int)Math.Abs(ch - 'e');
-
-
-            secretWord += (char)((int)('a' + shift));
-        }
-
-        return secretWord;
+        return found;
     }
 }
